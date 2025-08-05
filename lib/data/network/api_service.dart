@@ -18,7 +18,11 @@ abstract class ApiService {
   Future<MovieResponse> getNowPlayingMovies();
 
   @GET("/movie/{movie_id}")
-  Future<Movie> getMovieDetails(@Path("movie_id") int movieId);
+  Future<Movie> getMovieDetails(
+    @Path("movie_id") int movieId, {
+    // This tells the API to include credits in the response
+    @Query("append_to_response") String appendToResponse = "credits",
+  });
 
   @GET("/search/movie")
   Future<MovieResponse> searchMovies({

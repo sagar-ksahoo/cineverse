@@ -90,9 +90,14 @@ class _ApiService implements ApiService {
   }
 
   @override
-  Future<Movie> getMovieDetails(int movieId) async {
+  Future<Movie> getMovieDetails(
+    int movieId, {
+    String appendToResponse = "credits",
+  }) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      r'append_to_response': appendToResponse
+    };
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<Movie>(Options(

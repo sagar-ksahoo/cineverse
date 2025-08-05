@@ -18,12 +18,16 @@ Movie _$MovieFromJson(Map<String, dynamic> json) => Movie(
           ?.map((e) => Genre.fromJson(e as Map<String, dynamic>))
           .toList(),
       runtime: (json['runtime'] as num?)?.toInt(),
+      credits: json['credits'] == null
+          ? null
+          : CreditsResponse.fromJson(json['credits'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$MovieToJson(Movie instance) => <String, dynamic>{
       'id': instance.id,
       'title': instance.title,
       'overview': instance.overview,
+      'credits': instance.credits?.toJson(),
       'poster_path': instance.posterPath,
       'backdrop_path': instance.backdropPath,
       'release_date': instance.releaseDate,

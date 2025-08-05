@@ -1,6 +1,8 @@
 import 'package:cineverse/models/genre.dart'; // Import Genre
 import 'package:json_annotation/json_annotation.dart';
 
+import 'credits_response.dart';
+
 part 'movie.g.dart';
 
 @JsonSerializable(explicitToJson: true)
@@ -8,6 +10,9 @@ class Movie {
   final int id;
   final String title;
   final String overview;
+
+  final int? runtime;
+  final CreditsResponse? credits; 
 
   @JsonKey(name: 'poster_path')
   final String? posterPath;
@@ -22,7 +27,6 @@ class Movie {
   final double rating;
 
   final List<Genre>? genres; // New field for genres
-  final int? runtime; // New field for runtime in minutes
 
   Movie({
     required this.id,
@@ -34,6 +38,7 @@ class Movie {
     required this.rating,
     this.genres,
     this.runtime,
+    this.credits,
   });
 
   factory Movie.fromJson(Map<String, dynamic> json) => _$MovieFromJson(json);
