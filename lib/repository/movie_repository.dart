@@ -7,6 +7,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 abstract class MovieRepository {
   Future<List<Movie>> getTrendingMovies();
   Future<List<Movie>> getNowPlayingMovies();
+  Future<Movie> getMovieDetails(int movieId);
 }
 
 class MovieRepositoryImpl implements MovieRepository {
@@ -56,4 +57,16 @@ class MovieRepositoryImpl implements MovieRepository {
       return [];
     }
   }
+
+  @override
+  Future<Movie> getMovieDetails(int movieId) async {
+    try {
+      return await _apiService.getMovieDetails(movieId);
+    } on DioException catch (e) {
+      debugPrint("Error fetching movie details: $e");
+      // Re-throw the exception to be handled by the UI layer
+      rethrow;
+    }
+  }
+
 }

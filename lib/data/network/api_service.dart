@@ -2,6 +2,8 @@ import 'package:cineverse/models/movie_response.dart';
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
+import '../../models/movie.dart';
+
 part 'api_service.g.dart';
 
 @RestApi(baseUrl: "https://api.themoviedb.org/3")
@@ -14,6 +16,9 @@ abstract class ApiService {
 
   @GET("/movie/now_playing")
   Future<MovieResponse> getNowPlayingMovies();
+
+  @GET("/movie/{movie_id}")
+  Future<Movie> getMovieDetails(@Path("movie_id") int movieId);
 
   @GET("/search/movie")
   Future<MovieResponse> searchMovies({
