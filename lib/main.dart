@@ -4,13 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart'; // 1. Import package
 import 'package:provider/provider.dart';
 
+import 'viewmodel/search_viewmodel.dart';
+
 // 2. Make main() async and load the .env file
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => HomeViewModel(),
+    // 2. Use MultiProvider to provide both ViewModels
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => HomeViewModel()),
+        ChangeNotifierProvider(create: (context) => SearchViewModel()),
+      ],
       child: const MyApp(),
     ),
   );

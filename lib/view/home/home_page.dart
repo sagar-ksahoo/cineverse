@@ -53,8 +53,16 @@ class HomePage extends StatelessWidget {
               children: [
                 const Icon(Icons.search, color: Colors.grey),
                 const SizedBox(width: 10),
-                Text('Search for shows, movies, people...',
-                    style: TextStyle(color: Colors.grey[400])),
+                // 1. Wrap the Text widget in an Expanded widget
+                Expanded(
+                  child: Text(
+                    'Search for shows, movies, people...',
+                    // 2. Add these properties for better text handling
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(color: Colors.grey[400]),
+                  ),
+                ),
               ],
             ),
           ),
