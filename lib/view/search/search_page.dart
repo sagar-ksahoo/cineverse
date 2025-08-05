@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 
-// 1. Convert to a StatefulWidget
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
 
@@ -17,14 +16,12 @@ class _SearchPageState extends State<SearchPage> {
   @override
   void initState() {
     super.initState();
-    // 2. Clear previous results when the page is first loaded.
-    // We use listen: false because we are in initState.
+    // Clear previous results when the page is first loaded.
     Provider.of<SearchViewModel>(context, listen: false).clearResults();
   }
 
   @override
   Widget build(BuildContext context) {
-    // We can now use context.watch or a Consumer, it's a matter of style.
     final viewModel = context.watch<SearchViewModel>();
 
     return Scaffold(
@@ -38,9 +35,11 @@ class _SearchPageState extends State<SearchPage> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: TextField(
-              onSubmitted: (query) {
-                viewModel.searchMovies(query);
+              onChanged: (query) {
+                // This now calls the debouncing method in the ViewModel
+                viewModel.onSearchChanged(query);
               },
+              autofocus: true,
               decoration: InputDecoration(
                 hintText: 'Search for a movie...',
                 prefixIcon: const Icon(Icons.search),
@@ -63,11 +62,12 @@ class _SearchPageState extends State<SearchPage> {
                                 '${dotenv.env['TMDB_IMAGE_BASE_URL']!}${movie.posterPath}',
                                 width: 50,
                                 fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    const Icon(Icons.error, size: 50),
                               )
                             : const Icon(Icons.movie, size: 50),
                         title: Text(movie.title),
                         subtitle: Text(movie.year),
-                        // 3. Add the navigation logic here
                         onTap: () {
                           Navigator.push(
                             context,
