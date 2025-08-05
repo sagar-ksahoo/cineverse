@@ -3,6 +3,8 @@ import 'package:cineverse/viewmodel/home_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../repository/movie_repository.dart';
+
 // The HomePage can now be a StatelessWidget since state is managed by the ViewModel.
 class HomePage extends StatelessWidget {
   final VoidCallback onSearchTap;
@@ -12,6 +14,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     // Get the instance of our ViewModel from the provider
     final viewModel = context.watch<HomeViewModel>();
+    final repository = MovieRepositoryImpl();
 
     return Scaffold(
       appBar: AppBar(
@@ -28,10 +31,32 @@ class HomePage extends StatelessWidget {
                 const SizedBox(height: 20),
                 // Pass the real data from the ViewModel to the carousel
                 MovieCarousel(
-                    title: 'Trending Movies', movies: viewModel.trendingMovies),
+                  title: 'Trending Movies',
+                  movies: viewModel.trendingMovies,
+                  seeAllFuture:
+                      repository.getTrendingMovies(), // Pass the future
+                ),
                 const SizedBox(height: 20),
                 MovieCarousel(
-                    title: 'Now Playing', movies: viewModel.nowPlayingMovies),
+                  title: 'Now Playing',
+                  movies: viewModel.nowPlayingMovies,
+                  seeAllFuture:
+                      repository.getNowPlayingMovies(), // Pass the future
+                ),
+                const SizedBox(height: 20),
+                MovieCarousel(
+                  title: 'Popular Movies',
+                  movies: viewModel
+                      .popularMovies, // We'll add this to the ViewModel next
+                  seeAllFuture: repository.getPopularMovies(),
+                ),
+                const SizedBox(height: 20),
+                MovieCarousel(
+                  title: 'Top Rated Movies',
+                  movies: viewModel
+                      .topRatedMovies, // We'll add this to the ViewModel next
+                  seeAllFuture: repository.getTopRatedMovies(),
+                ),
               ],
             ),
     );

@@ -27,11 +27,11 @@ Map<String, dynamic> _$MovieToJson(Movie instance) => <String, dynamic>{
       'id': instance.id,
       'title': instance.title,
       'overview': instance.overview,
+      'runtime': instance.runtime,
       'credits': instance.credits?.toJson(),
       'poster_path': instance.posterPath,
       'backdrop_path': instance.backdropPath,
       'release_date': instance.releaseDate,
       'vote_average': instance.rating,
       'genres': instance.genres?.map((e) => e.toJson()).toList(),
-      'runtime': instance.runtime,
     };

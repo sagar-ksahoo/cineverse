@@ -6,7 +6,7 @@ import '../../models/movie.dart';
 
 part 'api_service.g.dart';
 
-@RestApi(baseUrl: "https://api.themoviedb.org/3")
+@RestApi()
 abstract class ApiService {
   factory ApiService(Dio dio, {String baseUrl}) = _ApiService;
 
@@ -29,4 +29,12 @@ abstract class ApiService {
     // We still need the query parameter for search, but not the key
     @Query("query") required String query,
   });
+
+  @GET("/movie/popular")
+  Future<MovieResponse> getPopularMovies();
+
+  @GET("/movie/top_rated")
+  Future<MovieResponse> getTopRatedMovies();
+
+
 }

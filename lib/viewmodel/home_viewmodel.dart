@@ -14,6 +14,12 @@ class HomeViewModel extends ChangeNotifier {
   List<Movie> _nowPlayingMovies = [];
   List<Movie> get nowPlayingMovies => _nowPlayingMovies;
 
+  List<Movie> _popularMovies = [];
+  List<Movie> get popularMovies => _popularMovies;
+
+  List<Movie> _topRatedMovies = [];
+  List<Movie> get topRatedMovies => _topRatedMovies;
+
   // A flag to indicate whether we are currently fetching data.
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -32,6 +38,8 @@ class HomeViewModel extends ChangeNotifier {
     final results = await Future.wait([
       _repository.getTrendingMovies(),
       _repository.getNowPlayingMovies(),
+      _repository.getPopularMovies(),
+      _repository.getTopRatedMovies(),
     ]);
 
     // Assign the results to our state variables.

@@ -13,19 +13,52 @@ class MovieDetailPage extends StatefulWidget {
 }
 
 class _MovieDetailPageState extends State<MovieDetailPage> {
+  // A Future to handle fetching the detailed movie data asynchronously.
   late Future<Movie> _movieDetailsFuture;
   final MovieRepository _repository = MovieRepositoryImpl();
   static final String imageBaseUrl = dotenv.env['TMDB_IMAGE_BASE_URL']!;
 
+  // State variable to track if the current movie is bookmarked.
+  bool _isBookmarked = false;
+
   @override
   void initState() {
     super.initState();
+    // When the page loads, fetch the full details and check the bookmark status.
+    _fetchData();
+  }
+
+  /// Fetches movie details from the repository and checks if the movie is bookmarked.
+  void _fetchData() {
     _movieDetailsFuture = _repository.getMovieDetails(widget.movie.id);
+    _repository.isBookmarked(widget.movie.id).then((isBookmarked) {
+      // Check if the widget is still in the tree before updating state.
+      if (mounted) {
+        setState(() {
+          _isBookmarked = isBookmarked;
+        });
+      }
+    });
+  }
+
+  /// Toggles the bookmark status for the current movie, updating the database and UI.
+  void _toggleBookmark(Movie movie) {
+    if (_isBookmarked) {
+      _repository.removeBookmark(movie.id);
+    } else {
+      // We use the detailed movie object (which has all fields) for bookmarking.
+      _repository.addBookmark(movie);
+    }
+    setState(() {
+      _isBookmarked = !_isBookmarked;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // FutureBuilder handles the different states of our data fetching:
+      // loading, error, and success.
       body: FutureBuilder<Movie>(
         future: _movieDetailsFuture,
         builder: (context, snapshot) {
@@ -34,6 +67,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
           } else if (snapshot.hasError) {
             return Center(child: Text("Error: ${snapshot.error}"));
           } else if (snapshot.hasData) {
+            // If data is successfully loaded, build the rich UI.
             final movie = snapshot.data!;
             return _buildMovieDetails(context, movie);
           } else {
@@ -44,9 +78,11 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     );
   }
 
+  /// Builds the main UI for the detail page using the fetched movie data.
   Widget _buildMovieDetails(BuildContext context, Movie movie) {
     return CustomScrollView(
       slivers: [
+        // A flexible, collapsing app bar with the backdrop image.
         SliverAppBar(
           expandedHeight: 250.0,
           pinned: true,
@@ -58,7 +94,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
             background: Stack(
               fit: StackFit.expand,
               children: [
-                // The main background image
+                // The backdrop image.
                 if (movie.backdropPath != null)
                   Image.network(
                     '$imageBaseUrl${movie.backdropPath}',
@@ -66,7 +102,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
                   )
                 else
                   Container(color: Colors.grey[800]),
-                // The gradient overlay
+                // A gradient overlay to ensure the back arrow and title are visible.
                 Container(
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
@@ -81,6 +117,7 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
             ),
           ),
         ),
+        // The main content area of the page.
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
@@ -140,16 +177,18 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
 
                 // SECTION: Add to Watchlist Button
                 ElevatedButton.icon(
-                  icon: const Icon(Icons.add),
-                  label: const Text("Add to Watchlist"),
+                  icon: Icon(_isBookmarked ? Icons.check : Icons.add),
+                  label:
+                      Text(_isBookmarked ? "On Watchlist" : "Add to Watchlist"),
                   style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.amber,
+                      backgroundColor:
+                          _isBookmarked ? Colors.grey[700] : Colors.amber,
                       foregroundColor: Colors.black,
                       minimumSize: const Size(double.infinity, 50),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       )),
-                  onPressed: () {/* TODO: Implement Bookmark Logic */},
+                  onPressed: () => _toggleBookmark(movie),
                 ),
                 const SizedBox(height: 24),
                 const Divider(),

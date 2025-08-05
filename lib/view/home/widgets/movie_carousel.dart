@@ -1,42 +1,58 @@
 import 'package:cineverse/models/movie.dart';
+import 'package:cineverse/view/home/see_all_page.dart';
 import 'package:cineverse/view/home/widgets/movie_card.dart';
 import 'package:flutter/material.dart';
 
 class MovieCarousel extends StatelessWidget {
   final String title;
   final List<Movie> movies;
+  final Future<List<Movie>> seeAllFuture;
 
-  const MovieCarousel({super.key, required this.title, required this.movies});
+  const MovieCarousel({
+    super.key,
+    required this.title,
+    required this.movies,
+    required this.seeAllFuture,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Carousel Header
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // 1. Wrap the title's Text widget in Expanded.
               Expanded(
                 child: Text(
                   title,
                   style: const TextStyle(
                       fontSize: 18, fontWeight: FontWeight.bold),
-                  // 2. Add these properties to prevent wrapping and add "..." if too long.
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              TextButton(onPressed: () {}, child: const Text('See All')),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SeeAllPage(
+                        title: title,
+                        moviesFuture: seeAllFuture,
+                      ),
+                    ),
+                  );
+                },
+                child: const Text('See All'),
+              ),
             ],
           ),
         ),
-        // Horizontal List of Movies
         SizedBox(
-          height: 280, // Set a fixed height for the carousel
+          height: 280,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: movies.length,
@@ -46,7 +62,8 @@ class MovieCarousel extends StatelessWidget {
                   left: index == 0 ? 16.0 : 8.0,
                   right: index == movies.length - 1 ? 16.0 : 8.0,
                 ),
-                child: MovieCard(movie: movies[index]),
+                // Pass a specific width to the MovieCard for the horizontal list.
+                child: MovieCard(movie: movies[index], width: 140),
               );
             },
           ),
