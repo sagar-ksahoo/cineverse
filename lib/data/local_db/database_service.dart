@@ -10,14 +10,14 @@ class DatabaseService {
 
   static Database? _database;
 
-  // Getter for the database. Initializes it if it hasn't been already.
+  /// Getter for the database. Initializes it if it hasn't been already.
   Future<Database> get database async {
     if (_database != null) return _database!;
     _database = await _initDatabase();
     return _database!;
   }
 
-  // Initializes the database, creating a file named 'cineverse.db'.
+  /// Initializes the database, creating a file named 'cineverse.db'.
   Future<Database> _initDatabase() async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, 'cineverse.db');
@@ -29,9 +29,10 @@ class DatabaseService {
     );
   }
 
-  // Called when the database is created for the first time.
-  // Creates the 'bookmarks' table.
+  /// This function is called only when the database is created for the very first time.
+  /// It defines the schema for all tables.
   Future<void> _onCreate(Database db, int version) async {
+    // Create the table for user bookmarks.
     await db.execute('''
       CREATE TABLE bookmarks(
         id INTEGER PRIMARY KEY,
@@ -42,12 +43,25 @@ class DatabaseService {
         vote_average REAL
       )
     ''');
+
+    // Create the table for caching movie lists for offline support.
+    await db.execute('''
+      CREATE TABLE movie_cache(
+        id INTEGER,
+        category TEXT,
+        title TEXT,
+        overview TEXT,
+        poster_path TEXT,
+        release_date TEXT,
+        vote_average REAL,
+        PRIMARY KEY (id, category)
+      )
+    ''');
   }
 
-  // --- BOOKMARK METHODS ---
+  // --- Bookmark Methods ---
 
   /// Inserts a movie into the bookmarks table.
-  /// If a movie with the same ID already exists, it will be replaced.
   Future<void> addBookmark(Movie movie) async {
     final db = await database;
     await db.insert(
@@ -75,7 +89,6 @@ class DatabaseService {
   }
 
   /// Checks if a movie with a given ID is already in the bookmarks table.
-  /// Returns true if it exists, false otherwise.
   Future<bool> isBookmarked(int movieId) async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query(
@@ -86,12 +99,55 @@ class DatabaseService {
     return maps.isNotEmpty;
   }
 
-  /// Retrieves all movies from the bookmarks table and returns them as a List<Movie>.
+  /// Retrieves all movies from the bookmarks table.
   Future<List<Movie>> getBookmarkedMovies() async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query('bookmarks');
+    return List.generate(maps.length, (i) {
+      return Movie(
+        id: maps[i]['id'],
+        title: maps[i]['title'],
+        overview: maps[i]['overview'],
+        posterPath: maps[i]['poster_path'],
+        releaseDate: maps[i]['release_date'],
+        rating: maps[i]['vote_average'],
+      );
+    });
+  }
 
-    // Convert the List<Map<String, dynamic>> into a List<Movie>.
+  // --- Caching Methods ---
+
+  /// Caches a list of movies for a specific category (e.g., 'trending').
+  Future<void> cacheMovies(List<Movie> movies, String category) async {
+    final db = await database;
+    final batch = db.batch();
+    batch.delete('movie_cache', where: 'category = ?', whereArgs: [category]);
+    for (final movie in movies) {
+      batch.insert(
+        'movie_cache',
+        {
+          'id': movie.id,
+          'category': category,
+          'title': movie.title,
+          'overview': movie.overview,
+          'poster_path': movie.posterPath,
+          'release_date': movie.releaseDate,
+          'vote_average': movie.rating,
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
+    await batch.commit(noResult: true);
+  }
+
+  /// Retrieves a list of cached movies for a specific category.
+  Future<List<Movie>> getCachedMovies(String category) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'movie_cache',
+      where: 'category = ?',
+      whereArgs: [category],
+    );
     return List.generate(maps.length, (i) {
       return Movie(
         id: maps[i]['id'],

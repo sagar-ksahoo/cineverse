@@ -1,19 +1,18 @@
+import 'package:cineverse/repository/movie_repository.dart';
 import 'package:cineverse/view/home/widgets/movie_carousel.dart';
 import 'package:cineverse/viewmodel/home_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../repository/movie_repository.dart';
-
-// The HomePage can now be a StatelessWidget since state is managed by the ViewModel.
 class HomePage extends StatelessWidget {
   final VoidCallback onSearchTap;
   const HomePage({super.key, required this.onSearchTap});
 
   @override
   Widget build(BuildContext context) {
-    // Get the instance of our ViewModel from the provider
+    // Get the instance of our ViewModel from the provider.
     final viewModel = context.watch<HomeViewModel>();
+    // We also need a repository instance to pass the futures to the carousel.
     final repository = MovieRepositoryImpl();
 
     return Scaffold(
@@ -22,43 +21,38 @@ class HomePage extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      // If the ViewModel is loading, show a spinner. Otherwise, show the content.
-      body: viewModel.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : ListView(
-              children: [
-                _buildSearchBar(context),
-                const SizedBox(height: 20),
-                // Pass the real data from the ViewModel to the carousel
-                MovieCarousel(
-                  title: 'Trending Movies',
-                  movies: viewModel.trendingMovies,
-                  seeAllFuture:
-                      repository.getTrendingMovies(), // Pass the future
-                ),
-                const SizedBox(height: 20),
-                MovieCarousel(
-                  title: 'Now Playing',
-                  movies: viewModel.nowPlayingMovies,
-                  seeAllFuture:
-                      repository.getNowPlayingMovies(), // Pass the future
-                ),
-                const SizedBox(height: 20),
-                MovieCarousel(
-                  title: 'Popular Movies',
-                  movies: viewModel
-                      .popularMovies, // We'll add this to the ViewModel next
-                  seeAllFuture: repository.getPopularMovies(),
-                ),
-                const SizedBox(height: 20),
-                MovieCarousel(
-                  title: 'Top Rated Movies',
-                  movies: viewModel
-                      .topRatedMovies, // We'll add this to the ViewModel next
-                  seeAllFuture: repository.getTopRatedMovies(),
-                ),
-              ],
-            ),
+      // We no longer need to check for isLoading.
+      // The ListView will build immediately with cached data,
+      // and then rebuild automatically when fresh data arrives.
+      body: ListView(
+        children: [
+          _buildSearchBar(context),
+          const SizedBox(height: 20),
+          MovieCarousel(
+            title: 'Trending Movies',
+            movies: viewModel.trendingMovies,
+            seeAllFuture: repository.getTrendingMovies(),
+          ),
+          const SizedBox(height: 20),
+          MovieCarousel(
+            title: 'Now Playing',
+            movies: viewModel.nowPlayingMovies,
+            seeAllFuture: repository.getNowPlayingMovies(),
+          ),
+          const SizedBox(height: 20),
+          MovieCarousel(
+            title: 'Popular Movies',
+            movies: viewModel.popularMovies,
+            seeAllFuture: repository.getPopularMovies(),
+          ),
+          const SizedBox(height: 20),
+          MovieCarousel(
+            title: 'Top Rated Movies',
+            movies: viewModel.topRatedMovies,
+            seeAllFuture: repository.getTopRatedMovies(),
+          ),
+        ],
+      ),
     );
   }
 
@@ -78,11 +72,9 @@ class HomePage extends StatelessWidget {
               children: [
                 const Icon(Icons.search, color: Colors.grey),
                 const SizedBox(width: 10),
-                // 1. Wrap the Text widget in an Expanded widget
                 Expanded(
                   child: Text(
                     'Search for shows, movies, people...',
-                    // 2. Add these properties for better text handling
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(color: Colors.grey[400]),

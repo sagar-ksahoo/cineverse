@@ -1,37 +1,33 @@
+import 'package:cineverse/data/local_db/database_service.dart';
+import 'package:cineverse/data/network/api_service.dart';
+import 'package:cineverse/models/movie.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-import '../data/local_db/database_service.dart';
-import '../data/network/api_service.dart';
-import '../models/movie.dart';
-
+import '../models/movie_response.dart';
 
 /// The "contract" for our repository, defining all its capabilities.
 abstract class MovieRepository {
   Future<List<Movie>> getTrendingMovies();
   Future<List<Movie>> getNowPlayingMovies();
+  Future<List<Movie>> getPopularMovies();
+  Future<List<Movie>> getTopRatedMovies();
   Future<Movie> getMovieDetails(int movieId);
   Future<List<Movie>> searchMovies(String query);
   Future<void> addBookmark(Movie movie);
   Future<void> removeBookmark(int movieId);
   Future<bool> isBookmarked(int movieId);
   Future<List<Movie>> getBookmarkedMovies();
-
-  Future<List<Movie>> getPopularMovies();
-  Future<List<Movie>> getTopRatedMovies();
 }
 
 /// The implementation of the repository.
 class MovieRepositoryImpl implements MovieRepository {
   final ApiService _apiService;
-  // The DatabaseService is nullable, as it will be null when running on the web.
   final DatabaseService? _dbService;
 
   MovieRepositoryImpl()
       : _apiService = ApiService(_createDioClient()),
-        // Conditionally initialize the database service.
-        // If the app is running on the web (kIsWeb is true), _dbService will be null.
         _dbService = kIsWeb ? null : DatabaseService();
 
   /// A static method to create and configure our Dio client in one place.
@@ -56,7 +52,6 @@ class MovieRepositoryImpl implements MovieRepository {
       ),
     );
 
-    // Add an interceptor to automatically inject the API key into every request.
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) {
@@ -69,29 +64,48 @@ class MovieRepositoryImpl implements MovieRepository {
     return dio;
   }
 
-  // --- Network Methods ---
-
-  @override
-  Future<List<Movie>> getTrendingMovies() async {
-    try {
-      final response = await _apiService.getTrendingMovies();
+  /// A generic helper method to handle the "try network, fallback to cache" logic.
+  Future<List<Movie>> _getMovies(
+      String category, Future<MovieResponse> Function() apiCall) async {
+    if (kIsWeb || _dbService == null) {
+      final response = await apiCall();
       return response.results;
+    }
+
+    try {
+      final response = await apiCall();
+      final freshMovies = response.results;
+      await _dbService!.cacheMovies(freshMovies, category);
+      return freshMovies;
     } on DioException catch (e) {
-      debugPrint("Error fetching trending movies: $e");
-      return [];
+      debugPrint("Network failed, loading from cache for category: $category. Error: $e");
+      return await _dbService!.getCachedMovies(category);
     }
   }
 
+  // --- Network Methods with Caching ---
+
   @override
-  Future<List<Movie>> getNowPlayingMovies() async {
-    try {
-      final response = await _apiService.getNowPlayingMovies();
-      return response.results;
-    } on DioException catch (e) {
-      debugPrint("Error fetching now playing movies: $e");
-      return [];
-    }
+  Future<List<Movie>> getTrendingMovies() {
+    return _getMovies('trending', _apiService.getTrendingMovies);
   }
+
+  @override
+  Future<List<Movie>> getNowPlayingMovies() {
+    return _getMovies('now_playing', _apiService.getNowPlayingMovies);
+  }
+
+  @override
+  Future<List<Movie>> getPopularMovies() {
+    return _getMovies('popular', _apiService.getPopularMovies);
+  }
+
+  @override
+  Future<List<Movie>> getTopRatedMovies() {
+    return _getMovies('top_rated', _apiService.getTopRatedMovies);
+  }
+
+  // --- Network Methods without Caching ---
 
   @override
   Future<Movie> getMovieDetails(int movieId) async {
@@ -118,7 +132,6 @@ class MovieRepositoryImpl implements MovieRepository {
 
   @override
   Future<void> addBookmark(Movie movie) {
-    // If on web, do nothing. Otherwise, call the database.
     if (kIsWeb || _dbService == null) return Future.value();
     return _dbService!.addBookmark(movie);
   }
@@ -131,40 +144,13 @@ class MovieRepositoryImpl implements MovieRepository {
 
   @override
   Future<bool> isBookmarked(int movieId) {
-    // If on web, always return false (not bookmarked).
     if (kIsWeb || _dbService == null) return Future.value(false);
     return _dbService!.isBookmarked(movieId);
   }
 
   @override
   Future<List<Movie>> getBookmarkedMovies() {
-    // If on web, always return an empty list.
     if (kIsWeb || _dbService == null) return Future.value([]);
     return _dbService!.getBookmarkedMovies();
   }
-
-  // see all section for popular and top rated movies
-
-  @override
-  Future<List<Movie>> getPopularMovies() async {
-    try {
-      final response = await _apiService.getPopularMovies();
-      return response.results;
-    } on DioException catch (e) {
-      debugPrint("Error fetching popular movies: $e");
-      return [];
-    }
-  }
-
-  @override
-  Future<List<Movie>> getTopRatedMovies() async {
-    try {
-      final response = await _apiService.getTopRatedMovies();
-      return response.results;
-    } on DioException catch (e) {
-      debugPrint("Error fetching top rated movies: $e");
-      return [];
-    }
-  }
-
 }
