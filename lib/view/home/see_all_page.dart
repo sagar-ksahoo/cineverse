@@ -28,11 +28,8 @@ class SeeAllPage extends StatelessWidget {
             final movies = snapshot.data!;
             return GridView.builder(
               padding: const EdgeInsets.all(16.0),
-              // --- THIS IS THE RESPONSIVE FIX ---
               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                // Each item in the grid can have a maximum width of 200 pixels.
                 maxCrossAxisExtent: 200,
-                // Adjust the aspect ratio to keep cards looking good.
                 childAspectRatio: 0.6,
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,

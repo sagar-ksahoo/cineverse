@@ -13,17 +13,12 @@ class SearchViewModel extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
-  // 2. Add a nullable Timer property for debouncing
   Timer? _debounce;
 
-  // NEW METHOD for live search
   void onSearchChanged(String query) {
-    // If a timer is already active, cancel it
     if (_debounce?.isActive ?? false) _debounce!.cancel();
 
-    // Start a new timer. The search will only happen after 500ms of no typing.
     _debounce = Timer(const Duration(milliseconds: 500), () {
-      // When the timer finishes, call the search method
       searchMovies(query);
     });
   }
@@ -47,7 +42,6 @@ class SearchViewModel extends ChangeNotifier {
     _results = [];
   }
 
-  // 3. Add the dispose method to cancel the timer when the ViewModel is destroyed
   @override
   void dispose() {
     _debounce?.cancel();

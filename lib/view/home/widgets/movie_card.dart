@@ -5,7 +5,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class MovieCard extends StatelessWidget {
   final Movie movie;
-  // Optional width parameter to handle different layout contexts.
   final double? width;
 
   const MovieCard({super.key, required this.movie, this.width});
@@ -14,7 +13,6 @@ class MovieCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Use a SizedBox to constrain the width if it's provided.
     return SizedBox(
       width: width,
       child: InkWell(
@@ -37,7 +35,6 @@ class MovieCard extends StatelessWidget {
                       ? Image.network(
                           '$imageBaseUrl${movie.posterPath}',
                           height: 200,
-                          // Allow the image to fill the width given by the parent.
                           width: double.infinity,
                           fit: BoxFit.cover,
                           loadingBuilder: (context, child, loadingProgress) {

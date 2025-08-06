@@ -14,7 +14,7 @@ class CastCard extends StatelessWidget {
       margin: const EdgeInsets.only(right: 12),
       child: Column(
         crossAxisAlignment:
-            CrossAxisAlignment.stretch, // Helps with text alignment
+            CrossAxisAlignment.stretch, 
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
@@ -33,7 +33,6 @@ class CastCard extends StatelessWidget {
                   ),
           ),
           const SizedBox(height: 8),
-          // 1. Wrap the Text widget in Flexible
           Flexible(
             child: Text(
               castMember.name,
@@ -44,7 +43,6 @@ class CastCard extends StatelessWidget {
             ),
           ),
           if (castMember.character != null)
-            // 2. Also wrap the character name Text widget in Flexible
             Flexible(
               child: Text(
                 castMember.character!,

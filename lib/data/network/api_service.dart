@@ -10,7 +10,6 @@ part 'api_service.g.dart';
 abstract class ApiService {
   factory ApiService(Dio dio, {String baseUrl}) = _ApiService;
 
-  // Notice the apiKey parameter is completely gone
   @GET("/trending/movie/week")
   Future<MovieResponse> getTrendingMovies();
 
@@ -20,13 +19,11 @@ abstract class ApiService {
   @GET("/movie/{movie_id}")
   Future<Movie> getMovieDetails(
     @Path("movie_id") int movieId, {
-    // This tells the API to include credits in the response
     @Query("append_to_response") String appendToResponse = "credits",
   });
 
   @GET("/search/movie")
   Future<MovieResponse> searchMovies({
-    // We still need the query parameter for search, but not the key
     @Query("query") required String query,
   });
 

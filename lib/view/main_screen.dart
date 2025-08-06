@@ -21,11 +21,9 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // We create the list of pages directly inside the build method.
-    // This avoids the LateInitializationError.
     final List<Widget> widgetOptions = <Widget>[
       HomePage(
-          onSearchTap: () => _onItemTapped(1)), // Go to Search tab (index 1)
+          onSearchTap: () => _onItemTapped(1)), 
       const SearchPage(),
       const SavedMoviesPage(),
     ];

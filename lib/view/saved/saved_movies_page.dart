@@ -22,7 +22,6 @@ class _SavedMoviesPageState extends State<SavedMoviesPage> {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      // Use a FutureBuilder to fetch and display the bookmarked movies
       body: FutureBuilder<List<Movie>>(
         future: _repository.getBookmarkedMovies(),
         builder: (context, snapshot) {
@@ -37,7 +36,6 @@ class _SavedMoviesPageState extends State<SavedMoviesPage> {
               return const Center(child: Text("Your watchlist is empty."));
             }
 
-            // Display the movies in a list
             return ListView.builder(
               itemCount: movies.length,
               itemBuilder: (context, index) {
@@ -58,8 +56,6 @@ class _SavedMoviesPageState extends State<SavedMoviesPage> {
                       MaterialPageRoute(
                         builder: (context) => MovieDetailPage(movie: movie),
                       ),
-                      // Use .then() to rebuild this page when returning from the detail page
-                      // This will refresh the list if a bookmark was removed.
                     ).then((_) => setState(() {}));
                   },
                 );

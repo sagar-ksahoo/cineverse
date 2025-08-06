@@ -3,21 +3,18 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DatabaseService {
-  // Singleton pattern to ensure only one instance of the database service exists.
   static final DatabaseService _instance = DatabaseService._internal();
   factory DatabaseService() => _instance;
   DatabaseService._internal();
 
   static Database? _database;
 
-  /// Getter for the database. Initializes it if it hasn't been already.
   Future<Database> get database async {
     if (_database != null) return _database!;
     _database = await _initDatabase();
     return _database!;
   }
 
-  /// Initializes the database, creating a file named 'cineverse.db'.
   Future<Database> _initDatabase() async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, 'cineverse.db');
@@ -29,10 +26,7 @@ class DatabaseService {
     );
   }
 
-  /// This function is called only when the database is created for the very first time.
-  /// It defines the schema for all tables.
   Future<void> _onCreate(Database db, int version) async {
-    // Create the table for user bookmarks.
     await db.execute('''
       CREATE TABLE bookmarks(
         id INTEGER PRIMARY KEY,
@@ -44,7 +38,6 @@ class DatabaseService {
       )
     ''');
 
-    // Create the table for caching movie lists for offline support.
     await db.execute('''
       CREATE TABLE movie_cache(
         id INTEGER,
@@ -117,7 +110,6 @@ class DatabaseService {
 
   // --- Caching Methods ---
 
-  /// Caches a list of movies for a specific category (e.g., 'trending').
   Future<void> cacheMovies(List<Movie> movies, String category) async {
     final db = await database;
     final batch = db.batch();

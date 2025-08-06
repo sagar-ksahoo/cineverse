@@ -62,7 +62,6 @@ class MovieCarousel extends StatelessWidget {
                   left: index == 0 ? 16.0 : 8.0,
                   right: index == movies.length - 1 ? 16.0 : 8.0,
                 ),
-                // Pass a specific width to the MovieCard for the horizontal list.
                 child: MovieCard(movie: movies[index], width: 140),
               );
             },

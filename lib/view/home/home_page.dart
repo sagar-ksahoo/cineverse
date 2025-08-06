@@ -10,9 +10,7 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Get the instance of our ViewModel from the provider.
     final viewModel = context.watch<HomeViewModel>();
-    // We also need a repository instance to pass the futures to the carousel.
     final repository = MovieRepositoryImpl();
 
     return Scaffold(
@@ -21,9 +19,6 @@ class HomePage extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      // We no longer need to check for isLoading.
-      // The ListView will build immediately with cached data,
-      // and then rebuild automatically when fresh data arrives.
       body: ListView(
         children: [
           _buildSearchBar(context),

@@ -16,7 +16,6 @@ class _SearchPageState extends State<SearchPage> {
   @override
   void initState() {
     super.initState();
-    // Clear previous results when the page is first loaded.
     Provider.of<SearchViewModel>(context, listen: false).clearResults();
   }
 
@@ -36,7 +35,6 @@ class _SearchPageState extends State<SearchPage> {
             padding: const EdgeInsets.all(16.0),
             child: TextField(
               onChanged: (query) {
-                // This now calls the debouncing method in the ViewModel
                 viewModel.onSearchChanged(query);
               },
               autofocus: true,

@@ -7,7 +7,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import '../models/movie_response.dart';
 
-/// The "contract" for our repository, defining all its capabilities.
 abstract class MovieRepository {
   Future<List<Movie>> getTrendingMovies();
   Future<List<Movie>> getNowPlayingMovies();
@@ -21,7 +20,6 @@ abstract class MovieRepository {
   Future<List<Movie>> getBookmarkedMovies();
 }
 
-/// The implementation of the repository.
 class MovieRepositoryImpl implements MovieRepository {
   final ApiService _apiService;
   final DatabaseService? _dbService;
@@ -30,7 +28,6 @@ class MovieRepositoryImpl implements MovieRepository {
       : _apiService = ApiService(_createDioClient()),
         _dbService = kIsWeb ? null : DatabaseService();
 
-  /// A static method to create and configure our Dio client in one place.
   static Dio _createDioClient() {
     final apiKey = dotenv.env['TMDB_API_KEY'];
     final baseUrl = dotenv.env['TMDB_BASE_URL'];
@@ -64,7 +61,6 @@ class MovieRepositoryImpl implements MovieRepository {
     return dio;
   }
 
-  /// A generic helper method to handle the "try network, fallback to cache" logic.
   Future<List<Movie>> _getMovies(
       String category, Future<MovieResponse> Function() apiCall) async {
     if (kIsWeb || _dbService == null) {

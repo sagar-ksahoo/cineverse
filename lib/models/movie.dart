@@ -26,7 +26,7 @@ class Movie {
   @JsonKey(name: 'vote_average')
   final double rating;
 
-  final List<Genre>? genres; // New field for genres
+  final List<Genre>? genres; 
 
   Movie({
     required this.id,

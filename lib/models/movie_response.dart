@@ -3,7 +3,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'movie_response.g.dart';
 
-// Add explicitToJson: true here
 @JsonSerializable(explicitToJson: true)
 class MovieResponse {
   final List<Movie> results;
