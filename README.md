@@ -49,12 +49,34 @@ To get a local copy up and running, follow these simple steps.
 
 ### Installation
 
-1. **Clone the repo**
+1.  **Clone the repo**
     ```sh
-    git clone [https://github.com/sagar-ksahoo/cineverse.git](https://github.com/sagar-ksahoo/cineverse.git)
+    git clone https://github.com/sagar-ksahoo/cineverse.git
     ```
-2. **Navigate to the project directory**
+2.  **Navigate to the project directory**
     ```sh
     cd cineverse
     ```
-3. **Install packages**
+3.  **Install packages**
+    ```sh
+    flutter pub get
+    ```
+4.  **Create a `.env` file** in the root of the project and add your TMDB API key and base URLs:
+    ```
+    TMDB_API_KEY=YOUR_API_KEY_HERE
+    TMDB_BASE_URL=https://api.themoviedb.org/3
+    TMDB_IMAGE_BASE_URL=https://image.tmdb.org/t/p/w500
+    ```
+5.  **Run the app**
+    ```sh
+    flutter run
+    ```
+
+---
+
+## 📦 Building the APK
+
+To generate the final APK deliverable, run the following command:
+
+```sh
+flutter build apk
